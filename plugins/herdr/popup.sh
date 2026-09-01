@@ -25,7 +25,7 @@ tabs=$("$herdr" tab list)
 workspaces=$("$herdr" workspace list)
 
 # One line per joined session, pastures' order preserved:
-#   pane_id \t label \t last \t turns \t live \t branch
+#   pane_id \t space \t label \t last \t turns \t live \t branch
 lines=$(jq -rn \
   --argjson records "$records" \
   --argjson agents "$agents" \
@@ -53,7 +53,8 @@ lines=$(jq -rn \
      elif $mode == "pastures" then $r.label
      else ($tab_label[$a.tab_id] | named) end // $r.label) as $label
   | ($r.git_branch | if . == null or . == "HEAD" then "-" else . end) as $branch
-  | [$a.pane_id, $label, rel($r.staleness_hours), ($r.turns|tostring), $a.agent_status, $branch]
+  | ($ws_label[$a.workspace_id] | named // "-") as $space
+  | [$a.pane_id, $space, $label, rel($r.staleness_hours), ($r.turns|tostring), $a.agent_status, $branch]
   | @tsv
 ')
 
@@ -63,10 +64,10 @@ if [[ -z "$lines" ]]; then
   exit 0
 fi
 
-choice=$(printf '%s\n' "$lines" | column -t -s $'\t' -o '  ' \
-  | fzf --no-sort --with-nth=2.. --prompt='warm> ' \
-        --header="$(printf 'SESSION  LAST  TURNS  LIVE  BRANCH')" \
-        --layout=reverse) || exit 0
+# Header goes through the same alignment as the rows; fzf hides the pane-id column from both.
+header=$'_\tSPACE\tSESSION\tLAST\tTURNS\tLIVE\tBRANCH'
+choice=$(printf '%s\n%s\n' "$header" "$lines" | column -t -s $'\t' -o '  ' \
+  | fzf --no-sort --with-nth=2.. --header-lines=1 --prompt='warm> ' --layout=reverse) || exit 0
 
 pane=$(awk '{print $1}' <<<"$choice")
 exec "$herdr" agent focus "$pane"
