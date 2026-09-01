@@ -1,11 +1,13 @@
 # pastures
 
-Ranks your AI coding sessions by neglect, not recency.
+Ranks your live AI coding sessions by *your* engagement, not the agent's.
 
-Recency is the loudest and dumbest attention signal, and every existing session tool amplifies it.
-A session that just pinged you doesn't need help finding you — it already found you. `pastures`
-surfaces the opposite: work you sank real thinking into that has gone quiet and can't advocate
-for itself.
+Every existing session tool sorts by agent activity — file mtime, last status change, who pinged
+most recently. That's the loudest and dumbest attention signal: a session that just pinged you
+doesn't need help finding you. `pastures` ignores what the agent did and ranks by what you did:
+how much thinking you put into a session, and how recently. The sessions you're toggling between
+sit at the top; the ones that have gone warm — real work from earlier today that slipped out of
+your head — sit right under them, easy to find. Cold ones sink.
 
 **Status:** early. Design settled, implementation in progress. Nothing installable yet.
 
@@ -24,20 +26,22 @@ Two measurement choices follow from staleness and investment being properties of
 agent:
 
 - **Staleness reads from the timestamp of your last turn, not the transcript's mtime.** An agent
-  that churned autonomously for twenty minutes after you walked away has not reduced your neglect
-  of that session. Every tool surveyed uses file mtime and inherits the error.
+  that churned autonomously for twenty minutes after you walked away has not made that session
+  any warmer to you. Every tool surveyed uses file mtime and inherits the error.
 - **Investment counts your turns, not wall-clock and not total messages.** Wall-clock lies — a
   session left open over lunch looks expensive and isn't — and total message count inflates under
   a long autonomous loop.
 
 ## Ranking
 
-Roughly `investment × staleness`. Cheap sessions decay quietly to the bottom; heavily-invested
-neglected ones climb. Neither axis catches the target case alone: something you sank real work
-into, that's paused or blocked, where you need to make a decision about it rather than merely
-having forgotten it exists.
+Warmth = `investment / staleness`. A session you put forty turns into an hour ago outranks one you
+asked a single question ten minutes ago. Cheap sessions never crowd out real work, and real work
+you've drifted away from stays findable instead of scrolling off.
 
-The weighting between the two factors is a couple of tunable numbers, not a plugin system.
+Only sessions with a running agent process are listed. Closing a session removes it — that's the
+dismiss action. There is no time window and nothing ages out.
+
+The weighting is a couple of tunable exponents, not a plugin system.
 
 **Liveness is not a sort key.** Sorting or grouping by it fragments the one list this exists to let
 you scan. It's a small annotation on the row, relevant only once you've already decided to look.
@@ -96,13 +100,17 @@ promoting exactly the sessions already capable of interrupting you.
 Outside this ecosystem, the nearest ancestor is OmniFocus's Review perspective: projects surfaced
 on a cadence so they don't fall through the cracks. It's schedule-based rather than neglect-scored
 and has no investment weighting, but it contributes a warning worth designing against — users
-report the review queue becoming *daunting*. A neglect list with no way to acknowledge and dismiss
-becomes a guilt pile you stop opening.
+report the review queue becoming *daunting*. That's why nothing here ages out on a timer and the
+only dismiss is closing the session: the list is exactly what's open, never a backlog.
 
 ## Name
 
 A pasture is where something goes when it's still alive and no longer in front of you. It also
 contains *past*, which is what this asks you to grapple with.
+
+An earlier draft of this README pitched the opposite ranking — neglect first, oldest and most
+invested on top. Working through concrete scenarios showed that with closed sessions leaving the
+list, "cold" mostly means "forgot to close it", and what actually needs finding is *warm*.
 
 ## License
 
