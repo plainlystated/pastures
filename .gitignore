@@ -1,0 +1,8 @@
+/target
+**/*.rs.bk
+
+# local, per-checkout env (mise puts secrets here)
+mise.toml
+.env
+
+.DS_Store
