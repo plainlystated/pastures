@@ -65,9 +65,17 @@ if [[ -z "$lines" ]]; then
 fi
 
 # Header goes through the same alignment as the rows; fzf hides the pane-id column from both.
+# Colour is applied after alignment (escape codes would throw off column widths):
+# working agents are dimmed, blocked ones (waiting on a permission or a question) are bold.
 header=$'_\tSPACE\tSESSION\tLAST\tTURNS\tLIVE\tBRANCH'
+dim=$'\e[2m'; bold=$'\e[1m'; reset=$'\e[0m'
 choice=$(printf '%s\n%s\n' "$header" "$lines" | column -t -s $'\t' -o '  ' \
-  | fzf --no-sort --with-nth=2.. --header-lines=1 --prompt='warm> ' --layout=reverse) || exit 0
+  | awk -v d="$dim" -v b="$bold" -v r="$reset" '
+      NR == 1          { print; next }
+      /  working  /    { print d $0 r; next }
+      /  blocked  /    { print b $0 r; next }
+                       { print }' \
+  | fzf --ansi --no-sort --with-nth=2.. --header-lines=1 --prompt='warm> ' --layout=reverse) || exit 0
 
 pane=$(awk '{print $1}' <<<"$choice")
 exec "$herdr" agent focus "$pane"
