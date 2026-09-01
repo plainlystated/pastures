@@ -1,0 +1,18 @@
+[package]
+name = "pastures"
+description = "Ranks your live AI coding sessions by your own engagement, not the agent's activity"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "pastures"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+chrono.workspace = true
+clap = { version = "4", features = ["derive"] }
+pastures-core = { path = "../pastures-core", version = "0.1.0" }
+serde_json.workspace = true

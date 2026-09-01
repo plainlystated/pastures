@@ -9,7 +9,53 @@ how much thinking you put into a session, and how recently. The sessions you're 
 sit at the top; the ones that have gone warm — real work from earlier today that slipped out of
 your head — sit right under them, easy to find. Cold ones sink.
 
-**Status:** early. Design settled, implementation in progress. Nothing installable yet.
+**Status:** early but working. Claude Code only; GitHub-only install for now.
+
+## Install
+
+```sh
+cargo install --git https://github.com/plainlystated/pastures pastures
+```
+
+## Use
+
+```
+$ pastures
+SESSION                                  LAST  TURNS  LIVE   BRANCH   DIR
+Jenkins build parallelization on GKE      14m     18  shell  master   ~/repos/cjp/workbench.git/main
+Neglect-ranked session view for agents     5m     12  busy   master   ~/repos/personal/pastures.git/master
+Airbrake review last 2 weeks               9m      9  idle   master   ~/repos/cjp/workbench.git/main
+PR status                                 42m      5  idle   issue-…  ~/repos/cjp/workbench.git/ralph/issue-5455
+Claude herd hook verification             12h     20  shell  -        ~/Sync/ai_workspaces/personal/personal-admin
+...
+```
+
+`LAST` is time since *you* last typed something. `TURNS` is how many things you've typed. `LIVE`
+is what the agent is doing (`busy`, `idle`, `shell`, or `?` when the process published no status).
+
+- `pastures --json` — the same records as JSON, for adapters.
+- `pastures --scores` — show the warmth column.
+- `pastures --dump-config` — print the defaults; save to `~/.config/pastures/config.toml` to tune.
+
+### herdr
+
+A popup that lists the sessions under the current herdr server and focuses the one you pick:
+
+```sh
+herdr plugin install plainlystated/pastures/plugins/herdr
+```
+
+Then bind it (herdr plugins can't add keys themselves):
+
+```toml
+[[keys.command]]
+key = "prefix+w"
+type = "plugin_action"
+command = "pastures.open"
+```
+
+Rows are labelled with the herdr tab name by default; set `PASTURES_HERDR_LABEL` to `workspace`,
+`title`, or `pastures` to change that. Needs `pastures`, `jq`, and `fzf` on PATH.
 
 ## The three metrics
 
